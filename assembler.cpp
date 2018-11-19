@@ -1,37 +1,18 @@
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <vector>
-#include <bitset>
+#include <bits/stdc++.h>
 using namespace std;
 
 const int dictSize = 256;
 
 
-//determine oppcode
-string getOppCode(string arg){
-
-    //r 
-    if(arg == "add")  return "0000";
-    if(arg == "sub")  return "0001";
-    if(arg == "and")  return "0010";
-    if(arg == "or")   return "0011";
-    if(arg == "xor")  return "0100";
-    if(arg == "not")  return "0101";
-    if(arg == "nor")  return "0110";
-    if(arg == "nand") return "0111";
-
-    //i
-    if(arg == "addi") return "1000";
-    if(arg == "subi") return "1001";
-    if(arg == "shl")  return "1010";
-    if(arg == "shr")  return "1011";
-    if(arg == "lw")   return "1100";
-    if(arg == "sw")   return "1101";
-    if(arg == "lui")  return "1110";
-    if(arg == "ori")  return "1111";
-
-    else return "error";
+map<string, string> fetchMap(string fileName){
+    string key, value;
+    map<string,string> m;
+    ifstream FILE("resources/"+fileName+".txt");
+   
+    while(FILE>>key>>value) m[key] = value;
+    FILE.close();
+    
+    return m;
 }
 
 //split instruction line
@@ -77,8 +58,10 @@ void writeIntoFile(vector<string>outputData, string fileName){
 
     if(FILE.is_open()){
         for(unsigned i = 0; i < outputData.size(); i++){
+            cout << outputData[i] << "\n";
             FILE << outputData[i] << "\n";
         }
+        FILE.close();
     }
     else cout << "Failed to open!" << endl;
 }
@@ -92,11 +75,12 @@ string rFromat(vector<string> ins){
         string reg = ins[formattingArr[i]];
         string buff = reg.substr(1, reg.size());
         int regNum = stoi(buff);
-
+        cout << regNum << endl;
         if(regNum <= 3){
             string binary = bitset<2>(regNum).to_string();
             result += " ";
             result += binary;
+            cout << binary << endl;
         }
         else cout << "Unallocated Register!" << endl; 
     }
@@ -104,24 +88,31 @@ string rFromat(vector<string> ins){
 }
 
 string iFormat(vector<string> ins){
-    return "rs rt immediate";
+    string result = "";
+
+    if()
+
+    return result;
 }
 
 //process the instructions
-void generateMachineCode(vector<string> insJar){
+vector<string> generateMachineCode(vector<string> insJar){
     vector<string> machineCodeJar;
+    map<string, string> OPPCODE = fetchMap("oppcode");
 
     for(unsigned insNum = 0; insNum < insJar.size(); insNum++){
         string machineCode = "";
         vector<string> explodedIns = explodeLine(insJar[insNum], " ,$");
-        string oppCode = getOppCode(explodedIns[0]);
-
+        string oppCode = OPPCODE[explodedIns[0]];
+        
+        cout << oppCode << endl;
+        
         machineCode += oppCode;
         machineCode += oppCode[0] == '0' ? rFromat(explodedIns) : iFormat(explodedIns);
         machineCodeJar.push_back(machineCode);
     }
 
-    writeIntoFile(machineCodeJar, "ass");
+    return machineCodeJar;
 }
 
 int main(){
@@ -129,5 +120,6 @@ int main(){
 
     cin >> fileName;
     vector<string> inputData = fetchFromFile(fileName);
-    generateMachineCode(inputData);
+    vector<string> outputData = generateMachineCode(inputData);
+    writeIntoFile(outputData, fileName);
 }
