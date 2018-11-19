@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <bitset>
 using namespace std;
 
 const int dictSize = 256;
@@ -18,7 +19,7 @@ string getOppCode(string arg){
     if(arg == "xor")  return "0100";
     if(arg == "not")  return "0101";
     if(arg == "nor")  return "0110";
-    if(arg == "")    return "0111";
+    if(arg == "nand") return "0111";
 
     //i
     if(arg == "addi") return "1000";
@@ -31,25 +32,6 @@ string getOppCode(string arg){
     if(arg == "ori")  return "1111";
 
     else return "error";
-}
-
-//r format instruction
-string rFromat(vector<string> ins){
-    for(unsigned i = 1; 1<ins.size(); i++){
-        vector<string> reg = explodeLine(ins[i], "r");
-    }
-}
-
-
-//fetch lines from input file
-vector<string> fetchFromFile(string fileName){
-    ifstream FILE(fileName+".txt");
-    vector<string> fileData;
-    string buffer;
-    
-    if(FILE.is_open()) while(getline(FILE, buffer)) fileData.push_back(buffer);
-    else cout << fileName+".txt not found!";
-    return fileData;    
 }
 
 //split instruction line
@@ -75,20 +57,71 @@ vector<string> explodeLine(const string &s, const string &del)
     return res;
 }
 
-//process the instructions
-void instructionProcessor(vector<string> insJar){
-    for(unsigned insNum = 0; insNum < insJar.size(); insNum++){
-        vector<string> assembly;
-        vector<string> explodedIns = explodeLine(insJar[insNum], " ,$");
-        
-        string oppCode = getOppCode(explodedIns[0]);
-        assembly.push_back(oppCode);
-        cout << oppCode << " ";
+//fetch lines from input file
+vector<string> fetchFromFile(string fileName){
+    ifstream FILE(fileName+".txt");
+    vector<string> fileData;
+    string buffer;
+    
+    if(FILE.is_open()){
+        while(getline(FILE, buffer)) fileData.push_back(buffer);
+        FILE.close();
+    } 
+    else cout << fileName+".txt not found!";
+    return fileData;    
+}
 
-        if(oppCode[0] == '0') {
+//write into file
+void writeIntoFile(vector<string>outputData, string fileName){
+    ofstream FILE(fileName+".mc.txt");
 
+    if(FILE.is_open()){
+        for(unsigned i = 0; i < outputData.size(); i++){
+            FILE << outputData[i] << "\n";
         }
     }
+    else cout << "Failed to open!" << endl;
+}
+
+//r format instruction
+string rFromat(vector<string> ins){
+    int formattingArr[3] = {2,3,1};
+    string result = "";
+    
+    for(unsigned i = 0; i<3; i++){
+        string reg = ins[formattingArr[i]];
+        string buff = reg.substr(1, reg.size());
+        int regNum = stoi(buff);
+
+        if(regNum <= 3){
+            string binary = bitset<2>(regNum).to_string();
+            result += " ";
+            result += binary;
+        }
+        else cout << "Unallocated Register!" << endl; 
+    }
+    return result;
+}
+
+string iFormat(vector<string> ins){
+    return "rs rt immediate";
+}
+
+//process the instructions
+void generateMachineCode(vector<string> insJar){
+    vector<string> machineCodeJar;
+
+    for(unsigned insNum = 0; insNum < insJar.size(); insNum++){
+        string machineCode = "";
+        vector<string> explodedIns = explodeLine(insJar[insNum], " ,$");
+        string oppCode = getOppCode(explodedIns[0]);
+
+        machineCode += oppCode;
+        machineCode += oppCode[0] == '0' ? rFromat(explodedIns) : iFormat(explodedIns);
+        machineCodeJar.push_back(machineCode);
+    }
+
+    writeIntoFile(machineCodeJar, "ass");
 }
 
 
@@ -98,5 +131,5 @@ int main(){
 
     cin >> fileName;
     vector<string> inputData = fetchFromFile(fileName);
-    instructionProcessor(inputData);
+    generateMachineCode(inputData);
 }
