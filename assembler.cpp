@@ -124,8 +124,6 @@ void generateMachineCode(vector<string> insJar){
     writeIntoFile(machineCodeJar, "ass");
 }
 
-
-
 int main(){
     string fileName;
 
