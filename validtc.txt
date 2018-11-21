@@ -1,0 +1,10 @@
+add $r1, $r2, $r3
+sub $r1, $r2, $r3
+add $r0, $r1, $r3
+lui $r1, 0xF
+lui $r1, 0x1
+lui $r1, 0x0
+lui $r3, 0xF
+lw $r1, 3($r2)
+sw $r2, 1($r0)
+addi $r1, $r2, 3

@@ -1,0 +1,1 @@
+write you assembly instructions in a "filename".txt file. compile the assembler.cpp and enter the "filename". it will generate a "filename".mc.txt  
