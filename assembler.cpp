@@ -22,13 +22,13 @@ map<string, string> fetchMap(string fileName){
 //global maps
 map<string, string> OPPCODE = fetchMap("oppcode");
 map <string, string> REG = fetchMap("regMap");
+map<string, string> HEXMAP = fetchMap("hexHelper");
 
 //hex to bin converter
 string hex2bin(string hex){
     string hexcode = hex.substr(2, hex.size());
     string bin = "";
-    map<string, string> HEXMAP = fetchMap("hexHelper");
-
+    
     for(int i = 0; i<hexcode.size(); i++){
         string key = "";
         key += hexcode[i];
@@ -64,105 +64,216 @@ vector<string> explodeLine(const string &s, const string &del){
 
 bool checkValRformat(stringstream& ss, int l){
     string rs, rt, rd;
-    bool flag = true, s = 0, t = 0, d = 0;
+    bool flag = true, s = 0, t = 0, d = 0, sc = 0, dc = 0;
     
     ss >> rd;
     ss >> rs;
     ss >> rt;
 
     if(rs[0] != '$') {
-        printError(l, "'$' missing in rs");
+        printError(l, "'$' missing in REG#2");
         flag = false;
         s = 1;
     }
     if(rs[rs.size() -1] != ','){
-        printError(l, "',' missing after rs");
+        printError(l, "',' missing after REG#2");
         flag = false;
-        s = 1;
+        sc = 1;
     }   
     if(rt[0] != '$'){
-        printError(l, "'$' missing in rt");
+        printError(l, "'$' missing in REG#3");
         flag = false;
         t = 1;
     }
     if(rd[0] != '$'){
-        printError(l, "'$' missing in rd");
+        printError(l, "'$' missing in REG#1");
         flag = false;
         d = 1;
     }
     if(rd[rd.size() -1] != ','){
-        printError(l, "',' missing after rd");
+        printError(l, "',' missing after REG#1");
         flag = false;
-        d = 1;
+        dc = 1;
     }
 
-    if(s == 0) 
+    if(s == 0 && sc == 0) 
         if(REG.find(rs.substr(0, rs.size()-1)) == REG.end()) 
-            {printError(l, "Unidentified value for rs"); flag = false;}
+            {printError(l, "undefined value for REG#2"); flag = false;}
+    if(s == 0 && sc == 1) 
+        if(REG.find(rs.substr(0, rs.size())) == REG.end()) 
+            {printError(l, "undefined value for REG#2"); flag = false;}
+
     if(t == 0) 
         if(REG.find(rt) == REG.end()) 
-            {printError(l, "Unidentified value for rt"); flag = false;} 
-    if(d == 0) 
+            {printError(l, "undefined value for REG#3"); flag = false;} 
+    
+    if(d == 0 && dc == 0) 
         if(REG.find(rd.substr(0, rd.size()-1)) == REG.end()) 
-            {printError(l, "Unidentified value for rd"); flag = false;}
+            {printError(l, "undefined value for REG#1"); flag = false;}
+
+    if(d == 0 && dc == 1) 
+        if(REG.find(rd.substr(0, rd.size()-1)) == REG.end()) 
+            {printError(l, "undefined value for REG#1"); flag = false;}
 
     return flag;
 }
 
 bool checkValIformat(string opp, stringstream& ss, int l){
-    string rd, rs, rt, offset;
+    string rd, rs, rt, offset, rsc1, rsc2, buff;
+    stringstream check, check1;
     int value = -1;
-    bool t = 0, s = 0, d = 0, flag = true;
+    bool t = 0, s = 0, d = 0, o = 0, c = 0, v = 0, nooff = 0, flag = true;
 
     if(opp == "lw" || opp == "sw"){
         ss >> rt;
-        ss >> value;
-        ss >> rs;
+        check << ss.rdbuf();
+        check >> value;
+        check1 << check.rdbuf();
+        check1 >> rs;
 
         if(rt[0] != '$'){
-            printError(l, "'$' missing in rt");
+            printError(l, "'$' missing in REG#1");
             flag = false;
             t = 1;
         }
         if(rt[rt.size() -1] != ','){
-            printError(l, "',' missing after rt");
+            printError(l, "',' missing after REG#1");
             flag = false;
             t = 1;
         }
-        if(value > 3){
+        if(check.str().substr(1, check.str().size()) == check1.str()){
+            printError(l, "offset value not given");
+            flag = false;
+            nooff = 1;
+        }
+        if(value > 3 && nooff == 0){
             printError(l, "Invalid offset value");
             flag = false;
         }
-        if(value == -1){
-            printError(l, "offset value not defined");
-            flag = false;
-            
-        }
-        cout << "offset: " << value << endl;
         if(rs[0] != '('){
             printError(l, "'(' missing after offset");
             flag = false;
-            s = 1;
+            o = 1;
         }
-        if(rs[1] != '$'){
-            printError(l, "'$' missing before rs");
-            flag = false;
-            s = 1;
+        if(o == 1){
+            if(rs[0] != '$'){
+                printError(l, "'$' missing in REG#2");
+                flag = false;
+                s = 1;
+            }
+        }else{
+            if(rs[1] != '$'){
+                printError(l, "'$' missing in REG#2");
+                flag = false;
+                s = 1;
+            }
         }
         if(rs[rs.size() -1] != ')'){
-            printError(l, "')' missing after rs");
+            printError(l, "')' missing after REG#2");
             flag = false;
-            s = 1;
+            c = 1;
         }
 
         if(t == 0) 
             if(REG.find(rt.substr(0, rt.size() - 1)) == REG.end()) 
-                {printError(l, "Unidentified value for rt"); flag = false;}
+                {printError(l, "undefined value for REG#1"); flag = false;}
     
-        if(s == 0) 
+        if(s == 0 && o == 0 && c == 0) 
             if(REG.find(rs.substr(1, rs.size() - 2)) == REG.end()) 
-                {printError(l, "Unidentified value for rs"); flag = false;}
-           
+                {cout << '1' << endl; printError(l, "undefined value for REG#2"); flag = false;}
+
+        if(s == 0 && o == 1 && c == 0)
+            if(REG.find(rs.substr(0, rs.size() - 1)) == REG.end()) 
+                {cout << '2' << endl; printError(l, "undefined value for REG#2"); flag = false;}
+
+        if(s == 0 && o == 0 && c == 1)
+            if(REG.find(rs.substr(1, rs.size())) == REG.end()) 
+                {cout << '3' << endl; printError(l, "undefined value for REG#2"); flag = false;}
+            
+        if(s == 0 && o == 1 && c == 1)
+            if(REG.find(rs) == REG.end()) 
+                {cout << '4' << endl; printError(l, "undefined value for REG#2"); flag = false;}   
+    }
+
+    else if(opp == "lui"){
+        ss >> rs;
+        ss >> offset;
+
+        if(rs[0] != '$') {
+            printError(l, "'$' missing in REG#1");
+            flag = false;
+            s = 1;
+        }
+        if(rs[rs.size() -1] != ','){
+            printError(l, "',' missing after REG#1");
+            flag = false;
+            s = 1;
+        }
+
+        if(offset.size() == 0){
+            printError(l, "offset value is not given");
+            flag = false;
+            v = 1;
+        }
+        else if(offset[0] != '0' || offset[1] != 'x'){
+            printError(l, "offset is not in hexadecimal");
+            flag = false;
+            v = 1;
+        }
+
+        if(s == 0) 
+            if(REG.find(rs.substr(0, rs.size() - 1)) == REG.end()) 
+                {printError(l, "Undefined value for REG#1"); flag = false;}
+        
+        if(v == 0)
+            if(HEXMAP.find(offset.substr(2, offset.size())) == HEXMAP.end())
+                {printError(l, "not supported mem address"); flag = false;}
+        
+    }
+
+    else{
+        ss >> rs;
+        ss >> rt;
+        ss >> offset;
+
+        if(rs[0] != '$'){
+            printError(l, "'$' missing in REG#1");
+            flag = false;
+            s = 1;
+        }
+        if(rs[rs.size() -1] != ','){
+            printError(l, "',' missing after REG#1");
+            flag = false;
+            s = 1;
+        }
+        if(rt[0] != '$'){
+            printError(l, "'$' missing in REG#2");
+            flag = false;
+            t = 1;
+        }
+        if(rt[rt.size() -1] != ','){
+            printError(l, "',' missing after REG#2");
+            flag = false;
+            t = 1;
+        }
+
+        if(offset.size() == 0){
+            printError(l, "immediate value not given");
+            flag = false;
+        }else{
+            if(stoi(offset) > 3){
+                printError(l, "immediate value is not supported");
+                flag = false;
+            }
+        }
+
+        if(s == 0) 
+            if(REG.find(rs.substr(0, rs.size()-1)) == REG.end()) 
+                {printError(l, "Undefined value for REG#1"); flag = false;}
+
+        if(t == 0) 
+            if(REG.find(rt.substr(0, rt.size()-1)) == REG.end()) 
+                {printError(l, "Undefined value for REG#2"); flag = false;}
     }
 
     return flag;
@@ -170,13 +281,16 @@ bool checkValIformat(string opp, stringstream& ss, int l){
 
 bool checkValidity(string ins, int lineNum){
     stringstream ss;
-    string opp;
+    string opp, c;
     if(ins.size() == 0) printError(lineNum, "empty instruction !");
     else{
         ss << ins;
         ss >> opp;
-        string c = OPPCODE[opp];
-        cout << c << endl;
+        if(OPPCODE.find(opp) == OPPCODE.end()){
+            printError(lineNum, "undefined oppcode");
+            return false;
+        }
+        else c = OPPCODE[opp];
         return c[0]=='1' ? checkValIformat(opp,ss,lineNum) : checkValRformat(ss,lineNum);
     }
     return false;
@@ -185,21 +299,29 @@ bool checkValidity(string ins, int lineNum){
 //fetch lines from input file
 vector<string> fetchFromFile(string fileName){
     ifstream FILE(fileName+".txt");
-    vector<string> fileData;
+    vector<string> fileData, emp;
     string buffer;
-    int line = 0;
+    int line = 0, run = 0;
     if(FILE.is_open()){
         while(line++, getline(FILE, buffer)) {
             bool isVal = checkValidity(buffer, line);
             if(isVal) {
                 printf("**sucessful instruction: %s **\n\n", buffer.c_str());
                 fileData.push_back(buffer);
+                run = 1;
             }
-            else printf("**could not run instruction: %s **\n\n", buffer.c_str());
+            else {
+                printf("**could not run instruction: %s **\n\n", buffer.c_str());
+                run = 0;    
+            }
         }
         FILE.close();
     } 
     else cout << fileName+".txt not found!";
+    if(run == 0) {
+        cout << "please fix the errors!" << "\n";
+        return emp;
+    }
     return fileData;    
 }
 
@@ -300,5 +422,5 @@ int main(){
     cin >> fileName;
     vector<string> inputData = fetchFromFile(fileName);
     vector<string> outputData = generateMachineCode(inputData);
-    writeIntoFile(outputData, fileName);  
+    if(outputData.size()>0) writeIntoFile(outputData, fileName); 
 }
