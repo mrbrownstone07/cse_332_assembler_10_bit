@@ -4,14 +4,6 @@ using namespace std;
 const int dictSize = 256;
 int errCount = 0;
 
-void printError(int line, string err){
-    printf("Error at line %d: %s \n", line, err.c_str());
-}
-
-void fatalError(int line, string err){
-    printf("Fatal error at line %d: %s \n", line, err.c_str());
-}
-
 //load map from file
 map<string, string> fetchMap(string fileName){
     string key, value;
@@ -28,6 +20,16 @@ map<string, string> fetchMap(string fileName){
 map<string, string> OPPCODE = fetchMap("oppcode");
 map <string, string> REG = fetchMap("regMap");
 map<string, string> HEXMAP = fetchMap("hexHelper");
+
+//normal error message printer
+void printError(int line, string err){
+    printf("Error at line %d: %s \n", line, err.c_str());
+}
+
+//fatal error message printer
+void fatalError(int line, string err){
+    printf("Fatal error at line %d: %s \n", line, err.c_str());
+}
 
 //hex to bin converter
 string hex2bin(string hex){
@@ -67,6 +69,7 @@ vector<string> explodeLine(const string &s, const string &del){
     return res;
 }
 
+//R format validity checker
 bool checkValRformat(stringstream& ss, int l){
     string rs, rt, rd;
     bool flag = true, s = 0, t = 0, d = 0, sc = 0, dc = 0;
@@ -122,12 +125,13 @@ bool checkValRformat(stringstream& ss, int l){
             {printError(l, "undefined value for REG#1"); flag = false; errCount++;}
 
     if(d == 0 && dc == 1) 
-        if(REG.find(rd.substr(0, rd.size()-1)) == REG.end()) 
+        if(REG.find(rd.substr(0, rd.size())) == REG.end()) 
             {printError(l, "undefined value for REG#1"); flag = false; errCount++;}
 
     return flag;
 }
 
+//I format validity checker
 bool checkValIformat(string opp, stringstream& ss, int l){
     string rd, rs, rt, offset, rsc1, rsc2, buff;
     stringstream check, check1;
@@ -307,6 +311,7 @@ bool checkValIformat(string opp, stringstream& ss, int l){
     return flag;
 }
 
+//main checker
 bool checkValidity(string ins, int lineNum){
     stringstream ss;
     string opp, c;
