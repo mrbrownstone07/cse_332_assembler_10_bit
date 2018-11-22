@@ -343,16 +343,15 @@ vector<string> fetchFromFile(string fileName){
             if(isVal) {
                 printf("**sucessful instruction: %s **\n\n", buffer.c_str());
                 fileData.push_back(buffer);
-                run = 1;
             }
             else {
                 printf("**could not run instruction: %s **\n\n", buffer.c_str());
-                run = 0;    
+                run = 1;    
             }
         }
         FILE.close();
         cout << "errors found: " << errCount << endl;
-        if(run == 0) {
+        if(run == 1) {
             cout << "please fix the errors!" << "\n";
             return emp;
         }
