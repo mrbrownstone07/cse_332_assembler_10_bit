@@ -41,7 +41,7 @@
     and 	0010
     or  	0011
     xor 	0100
-    cmp	    0101
+    cmp	0101
     nor 	0110
     nand	0111
     addi	1000
