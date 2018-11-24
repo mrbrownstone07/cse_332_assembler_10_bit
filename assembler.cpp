@@ -17,9 +17,9 @@ map<string, string> fetchMap(string fileName){
 }
 
 //global maps
-map<string, string> OPPCODE = fetchMap("oppcode");
+map <string, string> OPPCODE = fetchMap("oppcode");
 map <string, string> REG = fetchMap("regMap");
-map<string, string> HEXMAP = fetchMap("hexHelper");
+map <string, string> HEXMAP = fetchMap("hexHelper");
 
 //normal error message printer
 void printError(int line, string err){
