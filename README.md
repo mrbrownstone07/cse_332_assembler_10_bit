@@ -3,12 +3,11 @@
 
 # How to run:
 
-    #1 compile the assembler.cpp file
-    #2 write your instuctions in a .txt file("filename".txt)
-    #3 run assembler.cpp || assembler.o file.
-    #4 enter "filename"
-    #5 if there is no error in the input file, the output will be saved in a "filename".mc.txt file
-    #6 if there is any error the error messages will be shown in the terminal, and there will be no output.
+    #1 write your instuctions in a .txt file("filename".txt)
+    #2 complie and run assembler.cpp file.
+    #3 enter "filename"
+    #4 if there is no error in the input file, the output will be saved in a "filename".mc.txt file
+    #5 if there is any error the error messages will be shown in the terminal, and there will be no output.
 
 
 
