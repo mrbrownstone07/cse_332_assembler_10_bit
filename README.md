@@ -1,7 +1,7 @@
 # cse_332_assembler_10_bit
 10 bit assembler for cse 332 project processor
 
-##How to run:
+# How to run:
 
     #1 compile the assembler.cpp file
     #2 write your instuctions in a .txt file("filename".txt)
@@ -12,7 +12,7 @@
 
 
 
-##instruction formats:
+# instruction formats:
     
     add $rd, $rs ,$rt
     sub $rd, $rs, $rt
@@ -34,7 +34,7 @@
  
  
  
-##oppcodes:
+# oppcodes:
 
     add 	0000    
     sub 	0001
@@ -57,5 +57,4 @@
  
  
 ##Extras:
-
     two example input files are provided
