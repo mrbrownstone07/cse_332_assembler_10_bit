@@ -33,12 +33,14 @@ map <string, string> HEXMAP = fetchMap("hexHelper");
 
 //normal error message printer
 void printError(int line, string err){
-    printf("Error at line %d: %s \n", line, err.c_str());
+    if(line == 0) printf("Error: %s \n", err.c_str());
+    else printf("Error at line %d: %s \n", line, err.c_str());
 }
 
 //fatal error message printer
 void fatalError(int line, string err){
-    printf("Fatal error at line %d: %s \n", line, err.c_str());
+    if(line == 0) printf("Fatal error: %s \n", err.c_str());
+    else printf("Fatal error at line %d: %s \n", line, err.c_str());
 }
 
 //hex to bin converter
@@ -464,28 +466,55 @@ vector<string> generateMachineCode(vector<string> insJar){
     return machineCodeJar;
 }
 
-int promt(){
+bool promt(){
     string opp;
 
-    std::cout << "do you want to run the: .txt: ";
+    std::cout << "do you want to run .txt: ";
     cin >> opp;
-
-    // if(scmp_ig_case(opp, "yes") || scmp_ig_case(opp, "y")) return 1;
-    // esle reutrn 2;
 
     return (scmp_ig_case(opp, "yes") || scmp_ig_case(opp, "y")) == 0? 0 : 1;
     
 }
 
 int main(){
-    string fileName;
-
-    cout << "hello" << endl;
-
-    // std::cout << "please enter the file name: ";
-    // cin >> fileName;
     
-    // vector<string> inputData = fetchFromFile(fileName);
-    // vector<string> outputData = generateMachineCode(inputData);
-    // if(outputData.size()>0) writeIntoFile(outputData, fileName); 
+
+    if(promt() == true){
+        string fileName;
+
+        std::cout << "please enter the file name: ";
+        cin >> fileName;
+    
+        vector<string> inputData = fetchFromFile(fileName);
+        vector<string> outputData = generateMachineCode(inputData);
+        if(outputData.size()>0) writeIntoFile(outputData, fileName);
+    }else{
+        cout << "10 bit assembler\n"; 
+        string cmd;
+        vector<string> outputJar;
+
+        cout << "->> ";
+        cin.get();
+        while(getline(cin, cmd) && !scmp_ig_case(cmd, "quit")){
+            
+            if(checkValidity(cmd, 0)){
+                vector<string> inputdata;
+                inputdata.push_back(cmd);
+                vector<string> outputData = generateMachineCode(inputdata);
+                for(unsigned i = 0; i < outputData.size(); i++){
+                    cout << outputData[i];
+                    outputJar.push_back(outputData[i]);
+                }
+                cout << "\n";
+            }               
+            cout << "->> ";
+        }
+
+        string fileName;
+        cout << "save as: ";
+        cin >> fileName;
+        if(outputJar.size() > 0) writeIntoFile(outputJar, fileName);
+
+    }
 }
+ 
