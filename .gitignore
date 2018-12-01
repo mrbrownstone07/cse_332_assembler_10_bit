@@ -1,0 +1,6 @@
+#Ignore all text files
+*.txt
+
+#but not these
+!validtc.txt
+!invalidtc.txt
