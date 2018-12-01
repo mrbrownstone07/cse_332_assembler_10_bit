@@ -16,6 +16,16 @@ map<string, string> fetchMap(string fileName){
     return m;
 }
 
+//string compare ignore case
+bool scmp_ig_case(const string& a, const string& b)
+{
+    return std::equal(a.begin(), a.end(),
+                      b.begin(), b.end(),
+                      [](char a, char b) {
+                          return tolower(a) == tolower(b);
+                      });
+}
+
 //global maps
 map <string, string> OPPCODE = fetchMap("oppcode");
 map <string, string> REG = fetchMap("regMap");
@@ -40,8 +50,8 @@ string hex2bin(string hex){
         string key = "";
         key += hexcode[i];
         bin += HEXMAP[key];
-        //cout << HEXMAP[key] << "\n";
-        //cout << key << "\n";
+        //std::cout << HEXMAP[key] << "\n";
+        //std::cout << key << "\n";
     }
     
     return bin;
@@ -337,7 +347,7 @@ vector<string> fetchFromFile(string fileName){
     string buffer;
     int line = 0, run = 0;
     if(FILE.is_open()){
-        cout << "checking errors: \n\n";
+        std::cout << "checking errors: \n\n";
         while(line++, getline(FILE, buffer)) {
             bool isVal = checkValidity(buffer, line);
             if(isVal) {
@@ -350,13 +360,13 @@ vector<string> fetchFromFile(string fileName){
             }
         }
         FILE.close();
-        cout << "errors found: " << errCount << endl;
+        std::cout << "errors found: " << errCount << endl;
         if(run == 1) {
-            cout << "please fix the errors!" << "\n";
+            std::cout << "please fix the errors!" << "\n";
             return emp;
         }
     } 
-    else cout << fileName+".txt not found!\n";
+    else std::cout << fileName+".txt not found!\n";
     
     return fileData;    
 }
@@ -367,12 +377,12 @@ void writeIntoFile(vector<string>outputData, string fileName){
 
     if(FILE.is_open()){
         for(unsigned i = 0; i < outputData.size(); i++){
-            //cout << outputData[i] << "\n";
+            //std::cout << outputData[i] << "\n";
             FILE << outputData[i] << "\n";
         }
         FILE.close();
     }
-    else cout << "Failed to open!\n" << endl;
+    else std::cout << "Failed to open!\n" << endl;
 
     printf("output file: %s.mc.txt\n", fileName.c_str());
 }
@@ -390,7 +400,7 @@ string rFromat(vector<string> ins){
             result += " ";
             result += binary;
         }
-        else cout << "Unallocated Register!" << endl; 
+        else std::cout << "Unallocated Register!" << endl; 
     }
     return result;
 }
@@ -404,7 +414,7 @@ string iFormat(vector<string> ins){
         int offset = stoi(ins[2].substr(0, ins[2].size() -1));
         int rt = stoi(ins[3].substr(1, ins[3].size()-1));
         
-        if(offset > 3) cout << "Offset value is greater than possible \n";
+        if(offset > 3) std::cout << "Offset value is greater than possible \n";
         
         string offsetBin = bitset<2>(offset).to_string(); 
         string rsBin = bitset<2>(rs).to_string();
@@ -442,25 +452,40 @@ vector<string> generateMachineCode(vector<string> insJar){
         string machineCode = "";
         vector<string> explodedIns = explodeLine(insJar[insNum], " ,$");
         string oppCode = OPPCODE[explodedIns[0]];
-        //cout << insJar[insNum] << endl;
-        //cout << oppCode << endl;
+        //std::cout << insJar[insNum] << endl;
+        //std::cout << oppCode << endl;
         
         machineCode += oppCode;
         machineCode += oppCode[0] == '0' ? rFromat(explodedIns) : iFormat(explodedIns);
-        //cout << machineCode << endl;
+        //std::cout << machineCode << endl;
         machineCodeJar.push_back(machineCode);
     }
 
     return machineCodeJar;
 }
 
+int promt(){
+    string opp;
+
+    std::cout << "do you want to run the: .txt: ";
+    cin >> opp;
+
+    // if(scmp_ig_case(opp, "yes") || scmp_ig_case(opp, "y")) return 1;
+    // esle reutrn 2;
+
+    return (scmp_ig_case(opp, "yes") || scmp_ig_case(opp, "y")) == 0? 0 : 1;
+    
+}
+
 int main(){
     string fileName;
 
-    cout << "please enter the file name: ";
-    cin >> fileName;
+    cout << "hello" << endl;
+
+    // std::cout << "please enter the file name: ";
+    // cin >> fileName;
     
-    vector<string> inputData = fetchFromFile(fileName);
-    vector<string> outputData = generateMachineCode(inputData);
-    if(outputData.size()>0) writeIntoFile(outputData, fileName); 
+    // vector<string> inputData = fetchFromFile(fileName);
+    // vector<string> outputData = generateMachineCode(inputData);
+    // if(outputData.size()>0) writeIntoFile(outputData, fileName); 
 }
