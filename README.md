@@ -2,10 +2,10 @@
 10 bit assembler for cse 332 project processor
 
 # How to run:
-
-    #1 write your instuctions in a .txt file("filename".txt)
-    #2 complie and run assembler.cpp file.
-    #3 enter "filename"
+    
+    #1 complie and run assembler.cpp file.
+    #2 you can either write the instructions in a text file, and give it as an input to the program
+       or you can use the live mode and write your instructions.
     #4 if there is no error in the input file, the output will be saved in a "filename".mc.txt file
     #5 if there is any error the error messages will be shown in the terminal, and there will be no output.
 
