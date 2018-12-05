@@ -30,6 +30,8 @@ bool scmp_ig_case(const string& a, const string& b)
 map <string, string> OPPCODE = fetchMap("oppcode");
 map <string, string> REG = fetchMap("regMap");
 map <string, string> HEXMAP = fetchMap("hexHelper");
+map <string, string> BIN_TO_HEX_MAP = fetchMap("BinToHex");
+vector <string> binForHex;
 
 //normal error message printer
 void printError(int line, string err){
@@ -378,6 +380,7 @@ void writeIntoFile(vector<string>outputData, string fileName){
     ofstream FILE(fileName+".mc.txt");
 
     if(FILE.is_open()){
+        FILE << "v2.0 raw" << "\n";
         for(unsigned i = 0; i < outputData.size(); i++){
             //std::cout << outputData[i] << "\n";
             FILE << outputData[i] << "\n";
@@ -401,6 +404,7 @@ string rFromat(vector<string> ins){
             string binary = bitset<2>(regNum).to_string();
             result += " ";
             result += binary;
+
         }
         else std::cout << "Unallocated Register!" << endl; 
     }
@@ -456,7 +460,7 @@ vector<string> generateMachineCode(vector<string> insJar){
         string oppCode = OPPCODE[explodedIns[0]];
         //std::cout << insJar[insNum] << endl;
         //std::cout << oppCode << endl;
-        
+ 
         machineCode += oppCode;
         machineCode += oppCode[0] == '0' ? rFromat(explodedIns) : iFormat(explodedIns);
         //std::cout << machineCode << endl;
@@ -474,6 +478,15 @@ bool promt(){
 
     return (scmp_ig_case(opp, "yes") || scmp_ig_case(opp, "y")) == 0? 0 : 1;
     
+}
+
+string binToHex(string bin){
+    string hex = "";
+    for(int i = 0; i < bin.length(); i+=4){
+        string buffer = bin.substr(i, 4);
+        hex += BIN_TO_HEX_MAP[buffer];
+    }
+    return hex;
 }
 
 int main(){
@@ -500,10 +513,17 @@ int main(){
             if(checkValidity(cmd, 0)){
                 vector<string> inputdata;
                 inputdata.push_back(cmd);
+                string hex = "00";
                 vector<string> outputData = generateMachineCode(inputdata);
                 for(unsigned i = 0; i < outputData.size(); i++){
-                    cout << outputData[i];
-                    outputJar.push_back(outputData[i]);
+                    cout << outputData[i] << "\n";
+                    //outputJar.push_back(outputData[i]);
+                    hex += outputData[i];
+                    string::iterator end_pos = std::remove(hex.begin(), hex.end(), ' ');
+                    hex.erase(end_pos, hex.end());
+                    string hexOut = binToHex(hex);
+                    outputJar.push_back(hexOut);
+                    cout << hexOut;
                 }
                 cout << "\n";
             }               
